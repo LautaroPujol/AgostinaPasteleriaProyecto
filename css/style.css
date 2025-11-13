@@ -312,3 +312,24 @@ footer {
 }
 
 /*# sourceMappingURL=style.css.map */
+
+
+
+
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.card {
+  flex: 1 1 300px;
+  max-width: 300px;
+  transition: all 0.3s ease-in-out;
+}
+
+.card.hidden {
+  display: none !important;
+}
