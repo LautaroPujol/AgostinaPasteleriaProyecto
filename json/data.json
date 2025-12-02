@@ -1,0 +1,11 @@
+[
+  { "id": 1, "nombre": "Torta Matilda", "precio": 15000, "descripcion": "Chocolate puro, suave y esponjosa, perfecta para compartir.", "imagen": "../imagenes/tortamatilda.png" },
+  { "id": 2, "nombre": "Torta Merengue", "precio": 12500, "descripcion": "Capas suaves con merengue dorado que se derrite en la boca.", "imagen": "../imagenes/tortamerengue.png" },
+  { "id": 3, "nombre": "Torta de Almendras", "precio": 16000, "descripcion": "Tierna, aromática y con nueces crujientes irresistibles.", "imagen": "../imagenes/tortaalmendra.png" },
+  { "id": 4, "nombre": "Torta Rogel", "precio": 14000, "descripcion": "Capas crocantes con dulce de leche y merengue dorado.", "imagen": "../imagenes/tortarogel.png" },
+  { "id": 5, "nombre": "Lemon Pie", "precio": 11000, "descripcion": "Base crujiente, relleno ácido y cobertura esponjosa.", "imagen": "../imagenes/lemonpie.png" },
+  { "id": 6, "nombre": "Torta Frutilla", "precio": 13500, "descripcion": "Crema delicada y frutillas frescas, alegría en cada bocado.", "imagen": "../imagenes/tortafrutilla.png" },
+  { "id": 7, "nombre": "Torta Chajá", "precio": 14500, "descripcion": "Bizcochuelo suave, crema batida y duraznos frescos.", "imagen": "../imagenes/tortachaja.png" },
+  { "id": 8, "nombre": "Torta Imperial Ruso", "precio": 17000, "descripcion": "Base de pionono y crema, placer que conquista paladares.", "imagen": "../imagenes/imperialruso.png" },
+  { "id": 9, "nombre": "Torta Alfajor", "precio": 13000, "descripcion": "Galletas suaves, dulce de leche y cobertura de chocolate.", "imagen": "../imagenes/tortaalfajor.png" }
+]

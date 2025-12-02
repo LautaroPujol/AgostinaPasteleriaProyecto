@@ -1,121 +1,200 @@
-const productos = [
-  { nombre: "Torta Matilda", descripcion: "Chocolate puro, suave y esponjosa, perfecta para compartir.", imagen: "../imagenes/tortamatilda.png" },
-  { nombre: "Torta Merengue", descripcion: "Capas suaves con merengue dorado que se derrite en la boca.", imagen: "../imagenes/tortamerengue.png" },
-  { nombre: "Torta de Almendras", descripcion: "Tierna, aromática y con nueces crujientes irresistibles.", imagen: "../imagenes/tortaalmendra.png" },
-  { nombre: "Torta Rogel", descripcion: "Capas crocantes con dulce de leche y merengue dorado.", imagen: "../imagenes/tortarogel.png" },
-  { nombre: "Lemon Pie", descripcion: "Base crujiente, relleno ácido y cobertura esponjosa.", imagen: "../imagenes/lemonpie.png" },
-  { nombre: "Torta Frutilla", descripcion: "Crema delicada y frutillas frescas, alegría en cada bocado.", imagen: "../imagenes/tortafrutilla.png" },
-  { nombre: "Torta Chajá", descripcion: "Bizcochuelo suave, crema batida y duraznos frescos.", imagen: "../imagenes/tortachaja.png" },
-  { nombre: "Torta Imperial Ruso", descripcion: "Base de pionono y crema, placer que conquista paladares.", imagen: "../imagenes/imperialruso.png" },
-  { nombre: "Torta Alfajor", descripcion: "Galletas suaves, dulce de leche y cobertura de chocolate.", imagen: "../imagenes/tortaalfajor.png" }
-];
+// --- VARIABLES GLOBALES ---
+let productos = [];
+let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
-
-const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-
-// Función para mostrar productos
-function mostrarProductos(lista) {
-  const contenedor = document.getElementById("cards-container");
-  contenedor.innerHTML = "";
-
-  lista.forEach((producto, i) => {
-    const card = document.createElement("section");
-    card.className = "card col-12 col-sm-6 col-lg-4 text-center";
-
-    card.innerHTML = `
-      <h2 class="mt-2">${producto.nombre}</h2>
-      <img class="mt-1" src="${producto.imagen}" alt="${producto.nombre}">
-      <div class="d-flex h-100 flex-column align-items-center justify-content-between">
-        <p>${producto.descripcion}</p>
-        <button class="btn-base p-2">Comprar</button>
-      </div>
-    `;
-
-    contenedor.appendChild(card);
-
-    // Evento para agregar al carrito
-    const boton = card.querySelector(".btn-base");
-    boton.addEventListener("click", () => agregarAlCarrito(producto));
-  });
-}
-
-// Función para agregar el carrito
-function agregarAlCarrito(producto) {
-  carrito.push(producto);
-  localStorage.setItem("carrito", JSON.stringify(carrito));
-  mostrarMensaje(`${producto.nombre} agregada al carrito 🛒`);
-  mostrarCarrito();
-}
-
-// Función para mostrar el mensaje
-function mostrarMensaje(texto) {
-  const mensaje = document.createElement("div");
-  mensaje.textContent = texto;
-  mensaje.className = "alert alert-success position-fixed top-0 start-50 translate-middle-x mt-3";
-  document.body.appendChild(mensaje);
-  setTimeout(() => mensaje.remove(), 2000);
-}
-
-// Función para mostrar el carrito
-function mostrarCarrito() {
-  const listaCarrito = document.getElementById("lista-carrito");
-  listaCarrito.innerHTML = "";
-
-  if (carrito.length === 0) {
-    listaCarrito.innerHTML = "<p>No hay productos en el carrito 😢</p>";
-    return;
-  }
-
-  carrito.forEach((producto, index) => {
-    const item = document.createElement("div");
-    item.className = "col-12 col-md-6 col-lg-4 card text-center";
-    item.innerHTML = `
-      <h3 class="mt-2">${producto.nombre}</h3>
-      <img src="${producto.imagen}" alt="${producto.nombre}" class="img-fluid">
-      <p>${producto.descripcion}</p>
-      <button class="btn btn-danger btn-sm eliminar" data-index="${index}">Eliminar</button>
-    `;
-    listaCarrito.appendChild(item);
-  });
-
-  // Botones de eliminar
-  listaCarrito.querySelectorAll(".eliminar").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      const index = e.target.dataset.index;
-      carrito.splice(index, 1);
-      localStorage.setItem("carrito", JSON.stringify(carrito));
-      mostrarCarrito();
-      mostrarMensaje("Producto eliminado 🗑️");
-    });
-  });
-}
-
-// Buscador
+// Referencias al DOM (Buscamos los elementos UNA sola vez)
+const contenedorProductos = document.getElementById("cards-container");
+const contenedorCarrito = document.getElementById("lista-carrito");
+const spanTotal = document.getElementById("precio-total");
 const buscador = document.getElementById("buscador");
-buscador.addEventListener("input", () => {
-  const texto = buscador.value.toLowerCase();
-  const filtrados = productos.filter(
-    (p) =>
-      p.nombre.toLowerCase().includes(texto) ||
-      p.descripcion.toLowerCase().includes(texto)
-  );
-  mostrarProductos(filtrados);
-});
+const btnFinalizar = document.getElementById("btn-finalizar");
 
+// --- 1. FUNCIÓN PRINCIPAL DE INICIO ---
+// Esta función decide qué hacer según la página en la que estemos
+const iniciarApp = () => {
+    // A. Siempre renderizamos el carrito (porque el botón del header está en todas las páginas)
+    renderizarCarrito();
 
-document.addEventListener("DOMContentLoaded", () => {
-  const btnToggleCarrito = document.getElementById("toggle-carrito");
-  const seccionCarrito = document.getElementById("carrito-container");
+    // B. Solo si existe el contenedor de productos (estamos en Catálogo), cargamos la data
+    if (contenedorProductos) {
+        cargarProductos();
+    }
+    
+    // C. Solo si existe el buscador, activamos su evento
+    if (buscador) {
+        buscador.addEventListener("input", filtrarProductos);
+    }
+};
 
-  if (btnToggleCarrito && seccionCarrito) {
-    btnToggleCarrito.addEventListener("click", () => {
-      const visible = seccionCarrito.style.display === "block";
-      seccionCarrito.style.display = visible ? "none" : "block";
-      btnToggleCarrito.textContent = visible ? "🛒 Ver carrito" : "❌ Ocultar carrito";
+// --- 2. CARGA DE DATOS (FETCH) ---
+const cargarProductos = async () => {
+    try {
+        // Ajustamos la ruta para que funcione tanto en local como en GitHub Pages
+        // Intentamos subir un nivel, si falla, probamos ruta absoluta o local
+        const response = await fetch("../json/data.json");
+        
+        if (!response.ok) throw new Error("Error al cargar JSON");
+        
+        const data = await response.json();
+        productos = data;
+        mostrarProductos(productos);
+        
+    } catch (error) {
+        console.error("Error:", error);
+        // Solo mostramos error si existe el contenedor donde ponerlo
+        if(contenedorProductos) {
+            contenedorProductos.innerHTML = `
+                <div class="col-12 text-center text-danger">
+                    <h3>Error al cargar productos.</h3>
+                    <p>Intenta ejecutar con Live Server.</p>
+                </div>`;
+        }
+    }
+};
 
-      if (!visible) mostrarCarrito();
+// --- 3. RENDERIZADO DE PRODUCTOS ---
+const mostrarProductos = (lista) => {
+    // Validación de seguridad
+    if (!contenedorProductos) return;
+
+    if (lista.length === 0) {
+        contenedorProductos.innerHTML = `<p class="text-center w-100">No se encontraron productos.</p>`;
+        return;
+    }
+
+    contenedorProductos.innerHTML = lista.map(prod => `
+        <section class="card col-12 col-sm-6 col-lg-4 text-center p-0 overflow-hidden shadow-sm">
+            <h2 class="mt-3 fs-4">${prod.nombre}</h2>
+            <img class="mt-1 img-fluid" style="height: 200px; object-fit: cover;" src="${prod.imagen}" alt="${prod.nombre}">
+            <div class="card-body d-flex flex-column justify-content-between">
+                <p class="small">${prod.descripcion}</p>
+                <h4 class="fw-bold text-secondary">$${prod.precio}</h4>
+                <button class="btn-base p-2 w-100 mt-2" onclick="agregarAlCarrito(${prod.id})">
+                    Comprar
+                </button>
+            </div>
+        </section>
+    `).join("");
+};
+
+// --- 4. FILTRADO (Separado para poder llamarlo condicionalmente) ---
+const filtrarProductos = () => {
+    const texto = buscador.value.toLowerCase();
+    const filtrados = productos.filter(p => 
+        p.nombre.toLowerCase().includes(texto) || 
+        p.descripcion.toLowerCase().includes(texto)
+    );
+    mostrarProductos(filtrados);
+};
+
+// --- 5. LÓGICA DEL CARRITO (Global) ---
+window.agregarAlCarrito = (idProducto) => {
+    const productoEnCarrito = carrito.find(prod => prod.id === idProducto);
+
+    if (productoEnCarrito) {
+        productoEnCarrito.cantidad++;
+    } else {
+        const producto = productos.find(prod => prod.id === idProducto);
+        carrito.push({ ...producto, cantidad: 1 });
+    }
+
+    guardarYRenderizar();
+    notificacionAgregado();
+};
+
+window.eliminarDelCarrito = (idProducto) => {
+    carrito = carrito.filter(prod => prod.id !== idProducto);
+    guardarYRenderizar();
+    
+    Toastify({
+        text: "Producto eliminado",
+        style: { background: "#dc3545" },
+        duration: 2000,
+        gravity: "bottom",
+        position: "right"
+    }).showToast();
+};
+
+const guardarYRenderizar = () => {
+    localStorage.setItem("carrito", JSON.stringify(carrito));
+    renderizarCarrito();
+};
+
+const renderizarCarrito = () => {
+    // Si no existe el contenedor del carrito en esta página, no hacemos nada
+    if (!contenedorCarrito) return;
+
+    contenedorCarrito.innerHTML = "";
+
+    if (carrito.length === 0) {
+        contenedorCarrito.innerHTML = "<p class='text-center mt-3'>Tu carrito está vacío 😢</p>";
+        if(spanTotal) spanTotal.innerText = "0";
+        return;
+    }
+
+    contenedorCarrito.innerHTML = carrito.map(prod => `
+        <div class="card mb-3 p-2 border-0 shadow-sm bg-light">
+            <div class="d-flex align-items-center">
+                <img src="${prod.imagen}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;" class="me-3">
+                <div class="flex-grow-1">
+                    <h6 class="mb-0">${prod.nombre}</h6>
+                    <small class="text-muted">Cant: ${prod.cantidad}</small>
+                </div>
+                <div class="text-end">
+                    <span class="fw-bold d-block">$${prod.cantidad * prod.precio}</span>
+                    <button class="btn btn-sm btn-outline-danger border-0" onclick="eliminarDelCarrito(${prod.id})">
+                        ✕
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join("");
+
+    const total = carrito.reduce((acc, prod) => acc + (prod.precio * prod.cantidad), 0);
+    if(spanTotal) spanTotal.innerText = total;
+};
+
+// --- 6. EVENTO FINALIZAR COMPRA ---
+if (btnFinalizar) {
+    btnFinalizar.addEventListener("click", () => {
+        if (carrito.length === 0) {
+            Swal.fire('¡Ups!', 'El carrito está vacío', 'warning');
+            return;
+        }
+        
+        Swal.fire({
+            title: '¡Gracias por tu compra!',
+            text: 'Tu pedido está en camino.',
+            icon: 'success',
+            confirmButtonColor: '#ecb4b4',
+            confirmButtonText: 'Cerrar'
+        }).then(() => {
+            carrito = [];
+            guardarYRenderizar();
+            // Cierra el Offcanvas
+            const offcanvasElement = document.getElementById('carritoOffcanvas');
+            if(offcanvasElement) {
+                const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvasElement);
+                if(offcanvasInstance) offcanvasInstance.hide();
+            }
+        });
     });
-  }
+}
 
-  mostrarProductos(productos);
-});
+// --- 7. NOTIFICACIONES ---
+const notificacionAgregado = () => {
+    Toastify({
+        text: "¡Agregado al carrito! 🍰",
+        duration: 3000,
+        gravity: "bottom", 
+        position: "right", 
+        style: {
+            background: "linear-gradient(to right, #ecb4b4, #e89595)",
+            color: "#fff",
+            fontWeight: "bold"
+        },
+    }).showToast();
+};
+
+// --- EJECUCIÓN INICIAL ---
+iniciarApp();

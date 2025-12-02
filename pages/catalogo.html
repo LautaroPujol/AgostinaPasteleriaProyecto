@@ -1,29 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://necolas.github.io/normalize.css/8.0.1/normalize.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  <link href="https://fonts.googleapis.com/css2?family=Libertinus+Sans:ital,wght@0,400;0,700;1,400&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="../css/style.css">
-  <script defer src="../js/main.js"></script>
   <title>Agostina Pasteleria | Catálogo</title>
-  <meta name="description"
-    content="Explorá nuestro catálogo de tortas y postres artesanales: opciones clásicas, modernas y personalizadas. Pedí la tuya hoy mismo en Corrientes.">
-  <meta name="keywords" content="tortas artesanales, catálogo pastelería, postres, torta personalizada">
-  <meta property="og:title" content="Catálogo de Tortas | Agostina Pastelería">
-  <meta property="og:description"
-    content="Descubrí nuestras tortas artesanales: chocolate, frutales, personalizadas y mucho más. Calidad y sabor en cada bocado.">
-  <meta property="og:url" content="https://lautaropujol.github.io/AgostinaPasteleriaProyecto/pages/catalogo.html">
-  <meta property="og:type" content="website">
+  
+  <link rel="stylesheet" href="https://necolas.github.io/normalize.css/8.0.1/normalize.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Libertinus+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  
+  <script defer src="../js/main.js"></script>
 </head>
 
 <body>
-  <!--Header-->
   <header>
     <nav class="navbar navbar-expand-lg position-fixed fixed-top">
       <div class="container-fluid">
@@ -32,72 +26,70 @@
             <img class="imagen-header" src="../imagenes/Agostinapastelerialogo.png" alt="Agostina Pasteleria Logotipo">
           </a>
         </div>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav gap w-100 text-center fontw">
-            <li class="nav-item">
-              <a class="nav-link transform fontw" href="../index.html">Inicio</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link transform fontw" href="./nosotros.html">Nosotros</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link transform fontw" href="./catalogo.html">Catálogo</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link transform fontw" href="./servicios.html">Servicios</a>
-            </li>
+            <li class="nav-item"><a class="nav-link transform fontw" href="../index.html">Inicio</a></li>
+            <li class="nav-item"><a class="nav-link transform fontw" href="./nosotros.html">Nosotros</a></li>
+            <li class="nav-item"><a class="nav-link transform fontw" href="./catalogo.html">Catálogo</a></li>
+            <li class="nav-item"><a class="nav-link transform fontw" href="./servicios.html">Servicios</a></li>
           </ul>
         </div>
       </div>
     </nav>
   </header>
 
-  <!--Main-->
   <section class="seccion-h1 margintop">
     <h1>AGOSTINA PASTELERIA</h1>
     <p>Pastelería Artesanal</p>
   </section>
 
-  <!-- Buscador -->
   <div class="container text-center my-4">
     <input type="text" id="buscador" class="form-control w-50 mx-auto" placeholder="Buscar torta...">
   </div>
 
-  <!-- Botón para mostrar/ocultar carrito -->
-<div class="container text-center mb-4">
-  <button id="toggle-carrito" class="btn-base p-2">🛒 Ver carrito</button>
-</div>
-
-<!-- Carrito oculto al inicio -->
-<section id="carrito-container" class="container mb-5" style="display: none;">
-  <h2 class="text-center mb-3">Carrito 🛒</h2>
-  <div id="lista-carrito" class="row justify-content-center gap-3"></div>
-</section>
-
-  <!-- Contenedor de productos -->
-  <div class="container text-center">
-    <div id="cards-container" class="row justify-content-between gap-2"></div>
+  <div class="container text-center mb-4">
+    <button class="btn-base p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#carritoOffcanvas" aria-controls="carritoOffcanvas">
+        🛒 Ver Carrito
+    </button>
   </div>
 
-  <!--Footer-->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="carritoOffcanvas" aria-labelledby="carritoOffcanvasLabel">
+    <div class="offcanvas-header bg-light">
+      <h5 class="offcanvas-title" id="carritoOffcanvasLabel">Tu Pedido 🍰</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column">
+      
+      <div id="lista-carrito" class="flex-grow-1 overflow-auto">
+          </div>
+
+      <div class="mt-3 border-top pt-3">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="h5 mb-0">Total:</span>
+              <span class="h4 mb-0 text-success fw-bold">$<span id="precio-total">0</span></span>
+          </div>
+          <button id="btn-finalizar" class="btn btn-dark w-100 py-2">Finalizar Compra</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="container text-center mb-5">
+    <div id="cards-container" class="row justify-content-between gap-2">
+        </div>
+  </div>
+
   <footer>
     <p class="p-2">Todos los derechos reservados</p>
     <div class="gap-2 p-1">
-      <a href="https://www.instagram.com/agostina.pasteleria/" target="_blank" rel="noopener">
-        <img class="border rounded-3 imagen-footer" src="../imagenes/logotipoinstagram.png" alt="instagram">
-      </a>
-      <a href="http://qr.afip.gob.ar/?qr=8s6BAcXV2i7PbAFO10hLyw,," target="_F960AFIPInfo" rel="noopener">
-        <img class="imagen-footer" src="../imagenes/datafiscal.jpg" alt="Data Fiscal">
-      </a>
+      <a href="https://www.instagram.com/" target="_blank"><img class="border rounded-3 imagen-footer" src="../imagenes/logotipoinstagram.png" alt="instagram"></a>
     </div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </body>
 </html>
